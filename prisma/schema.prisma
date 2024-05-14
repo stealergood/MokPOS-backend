@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql" // or the database you are using
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -8,12 +8,12 @@ generator client {
 }
 
 model User {
-  user_id    String    @id @default(uuid())
+  user_id    String           @id @default(uuid())
   store_name String?
   email      String?
   phone      Int?
   password   String?
-  created_at DateTime  @default(now())
+  created_at DateTime         @default(now())
   products   Product[]
   categories Category[]
   orders     Order[]
@@ -26,13 +26,13 @@ model Product {
   product_name    String
   image           String?
   image_public_id String?
-  price           Decimal    @db.Decimal(10, 2)
+  price           Decimal   @db.Decimal(10, 2)
   stock           Int
   category_id     Int
-  created_at      DateTime   @default(now())
+  created_at      DateTime  @default(now())
   
-  user     User     @relation(fields: [user_id], references: [user_id])
-  category Category @relation(fields: [category_id], references: [category_id])
+  user     User             @relation(fields: [user_id], references: [user_id])
+  category Category         @relation(fields: [category_id], references: [category_id])
   orders   Order[]
 }
 
@@ -42,17 +42,16 @@ model Category {
   category_name String
   created_at    DateTime @default(now())
   
-  user     User     @relation(fields: [user_id], references: [user_id])
+  user     User          @relation(fields: [user_id], references: [user_id])
   products Product[]
 }
 
 model Order {
-  order_id      String   @id @default(uuid())
+  order_id      Int       @id @default(autoincrement())
   user_id       String
   transaction_id Int
   product_id    Int
   quantity      Int
-  total_price   Decimal   @db.Decimal(10, 2)
   
   user        User        @relation(fields: [user_id], references: [user_id])
   product     Product     @relation(fields: [product_id], references: [product_id])
@@ -64,10 +63,10 @@ model Transaction {
   user_id        String
   amount         Decimal   @db.Decimal(10, 2)
   payment_method String
-  created_at     DateTime  @default(now())
   placement      Placement
+  created_at     DateTime  @default(now())
   
-  user   User   @relation(fields: [user_id], references: [user_id])
+  user           User      @relation(fields: [user_id], references: [user_id])
   orders Order[]
 }
 
