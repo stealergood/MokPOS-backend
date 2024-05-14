@@ -1,8 +1,14 @@
 import { Database } from "../config/database.js";
 
 export const GetCategory = async (req, res) => {
+    const { user_id } = req.body;
+
     try {
-        const category = await Database.category.findMany();
+        const category = await Database.category.findMany({
+            where: {
+                user_id: user_id
+            }
+        });
 
         if (category == 0) {
             return res.status(404).json({ message: "No Category" })
