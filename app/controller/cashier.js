@@ -72,7 +72,6 @@ async function orderHandler (user_id, product) {
 async function transactionHandler(user_id, orderData, amount, payment, placement_order){
     const transaction_id = orderData[0].transaction_id;
 
-    console.log(transaction_id);
     const transactionData = {
         transaction_id: transaction_id,
         user_id: user_id,
@@ -111,7 +110,6 @@ export const PlaceOrder = async (req, res) => {
 
     const orderData = await orderHandler(user_id, product);
     const transactionData = await transactionHandler(user_id, orderData, amount, payment, placement_order);
-    console.log(transactionData);
     
     try {
         await Database.transaction.create({
@@ -121,7 +119,11 @@ export const PlaceOrder = async (req, res) => {
             data: orderData
         });
 
-        return res.status(200).json({ message: "Order placed successfully" });
+        return res.status(200).json({ 
+            code: 200,
+            status: "success",
+            message: "Order placed successfully",
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Internal server error" });
