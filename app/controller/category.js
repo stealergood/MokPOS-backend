@@ -59,10 +59,15 @@ export const CreateCategory = async (req, res) => {
         });
 
         res.status(201).json({ 
-            message: "Category created successfully" });
+            code: 201,
+            message: "Category created successfully"
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            code: 500,
+            message: "Internal server error"
+        });
     };
 };
 
@@ -102,7 +107,10 @@ export const UpdateCategory = async (req, res) => {
         res.status(200).json({ message: "Category updated successfully" });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            code: 500,
+            message: "Internal server error"
+        });
     };
 };
 

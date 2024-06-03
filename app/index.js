@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 dotenv.config();
 
 const app = express();
@@ -10,6 +11,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
