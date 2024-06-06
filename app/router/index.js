@@ -8,7 +8,7 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/login', Login);
+router.post('/login', Login);
 router.post('/register', Register);
 
 router.get('/product/:name', AuthVerify, GetProductbySearch);
