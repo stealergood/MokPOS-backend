@@ -13,7 +13,10 @@ export const GetProductbySearch = async (req, res) => {
         });
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         };
 
         const product = await Database.product.findMany({
@@ -23,16 +26,23 @@ export const GetProductbySearch = async (req, res) => {
         });
 
         if (product.length == 0) {
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "Product not found" 
+            });
         };
 
         res.status(200).json({
+            status: "success",
             message: "Success get product",
             data: product
         })
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: "Internal server error" })
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        })
     }
 }
 
@@ -47,7 +57,10 @@ export const GetProduct = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const product = await Database.product.findMany({
@@ -57,17 +70,24 @@ export const GetProduct = async (req, res) => {
         });
 
         if (product == 0) {
-            return res.status(404).json({ message: "No Product Exist" })
+            return res.status(404).json({ 
+                status: "error",
+                message: "No Product Exist" 
+            })
         }
 
         res.status(200).json({
+            status: "success",
             message: "Success Get Product",
             data: product
         
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     };
 };
 
@@ -83,7 +103,10 @@ export const CreateProduct = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const productDb_name = await Database.product.findMany({
@@ -99,12 +122,18 @@ export const CreateProduct = async (req, res) => {
         });
 
         if (categoryDb.length == 0){
-            return res.status(404).json({ message: "Category not found" });
+            return res.status(404).json({
+                status: "error",
+                message: "Category not found" 
+            });
         }
 
         if (!productDb_name.length == 0){
             if (product_name === product_name) {
-                return res.status(409).json({ message: "Product already exist" });
+                return res.status(409).json({ 
+                    status: "error",
+                    message: "Product already exist" 
+                });
             };
         };
 
@@ -123,6 +152,7 @@ export const CreateProduct = async (req, res) => {
         });
 
         res.status(201).json({ 
+            status: "success",
             message: "Product created successfully",
             data: {
                 product_name: product_name,
@@ -135,7 +165,10 @@ export const CreateProduct = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     };
 };
 
@@ -167,7 +200,10 @@ export const UpdateProduct = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const productDb = await Database.product.findMany({
@@ -177,7 +213,10 @@ export const UpdateProduct = async (req, res) => {
         });
 
         if (productDb.length == 0){
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "Product not found" 
+            });
         };
 
         await Database.product.update({
@@ -187,10 +226,16 @@ export const UpdateProduct = async (req, res) => {
             data: updateData
         });
 
-        res.status(200).json({ message: "Product updated successfully" });
+        res.status(200).json({ 
+            status: "success",
+            message: "Product updated successfully" 
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     };
 }
 
@@ -205,7 +250,10 @@ export const DeleteProduct = async(req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const productDB = await Database.product.findMany({
@@ -215,7 +263,10 @@ export const DeleteProduct = async(req, res) => {
         })
 
         if (productDB.length == 0){
-            return res.status(404).json({ message: "No Product Exist" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "No Product Exist" 
+            });
         }
 
         await cloudinary.uploader.destroy(productDB[0].image_public_id);
@@ -226,9 +277,15 @@ export const DeleteProduct = async(req, res) => {
             }
         });
 
-        res.status(200).json({ message: "Product deleted successfully" });
+        res.status(200).json({ 
+            status: "success",
+            message: "Product deleted successfully" 
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     }
 }

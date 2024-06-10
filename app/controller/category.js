@@ -11,17 +11,24 @@ export const GetCategory = async (req, res) => {
         });
 
         if (category == 0) {
-            return res.status(404).json({ message: "No Category" })
+            return res.status(404).json({
+                status: "error", 
+                message: "No Category" 
+            })
         }
 
         res.status(200).json({
+            status: "success",
             message: "Category found",
             data: category
         
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     };
 };
 
@@ -36,7 +43,10 @@ export const CreateCategory = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({
+                status: "error", 
+                message: "User not found" 
+            });
         }
 
         const categoryDb_name = await Database.category.findMany({
@@ -47,7 +57,10 @@ export const CreateCategory = async (req, res) => {
 
         if (!categoryDb_name.length === 0){
             if (category_name === category_name) {
-                return res.status(409).json({ message: "Category already exist" });
+                return res.status(409).json({ 
+                    status: "error",
+                    message: "Category already exist" 
+                });
             };
         }
 
@@ -59,13 +72,13 @@ export const CreateCategory = async (req, res) => {
         });
 
         res.status(201).json({ 
-            code: 201,
+            status: "success",
             message: "Category created successfully"
         });
     } catch (error) {
         console.log(error);
         res.status(500).json({ 
-            code: 500,
+            status: "error",
             message: "Internal server error"
         });
     };
@@ -82,7 +95,10 @@ export const UpdateCategory = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const categoryDb = await Database.category.findMany({
@@ -92,7 +108,10 @@ export const UpdateCategory = async (req, res) => {
         });
 
         if (categoryDb.length === 0) {
-            return res.status(404).json({ message: "Category not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "Category not found" 
+            });
         };
 
         await Database.category.update({
@@ -104,11 +123,14 @@ export const UpdateCategory = async (req, res) => {
             }
         });
 
-        res.status(200).json({ message: "Category updated successfully" });
+        res.status(200).json({ 
+            status: "success",
+            message: "Category updated successfully" 
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ 
-            code: 500,
+            status: "error",
             message: "Internal server error"
         });
     };
@@ -125,7 +147,10 @@ export const DeleteCategory = async (req, res) => {
         })
 
         if (user.length == 0) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "User not found" 
+            });
         }
 
         const categoryDb = await Database.category.findMany({
@@ -135,7 +160,10 @@ export const DeleteCategory = async (req, res) => {
         });
 
         if (categoryDb.length === 0) {
-            return res.status(404).json({ message: "Category not found" });
+            return res.status(404).json({ 
+                status: "error",
+                message: "Category not found" 
+            });
         };
 
         await Database.category.delete({
@@ -144,9 +172,15 @@ export const DeleteCategory = async (req, res) => {
             }
         });
 
-        res.status(200).json({ message: "Category deleted successfully" });
+        res.status(200).json({ 
+            status: "success",
+            message: "Category deleted successfully" 
+        });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Internal server error" 
+        });
     };
 }
