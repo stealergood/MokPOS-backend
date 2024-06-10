@@ -3,7 +3,7 @@ import { GetProduct, GetProductbySearch, CreateProduct, UpdateProduct, DeletePro
 import { GetCategory, CreateCategory, UpdateCategory, DeleteCategory } from '../controller/category.js';
 import { PlaceOrder } from '../controller/cashier.js';
 import { AuthVerify } from '../middleware/jwtVerify.js';
-import { multerMiddleware } from '../middleware/multer.js';
+// import { multerMiddleware } from '../middleware/multer.js';
 import express from 'express';
 
 const router = express.Router();
@@ -13,7 +13,7 @@ router.post('/register', Register);
 
 router.get('/product/:name', AuthVerify, GetProductbySearch);
 router.get('/product', AuthVerify, GetProduct);
-router.post('/product', AuthVerify, multerMiddleware, CreateProduct);
+router.post('/product', AuthVerify, CreateProduct);
 router.put('/product', AuthVerify, UpdateProduct);
 router.delete('/product', AuthVerify, DeleteProduct);
 
