@@ -93,7 +93,7 @@ export const GetProduct = async (req, res) => {
 
 export const CreateProduct = async (req, res) => {
     const { user_id, product_name, price, stock, category_id } = req.body;
-    const image = req.file.path;
+    const image = req.file;
 
     try {
         const user = await Database.user.findMany({
