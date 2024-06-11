@@ -1,7 +1,7 @@
 import { Database } from "../config/database.js";
 
 export const GetCategory = async (req, res) => {
-    const { user_id } = req.body;
+    const { user_id } = req.query;
 
     try {
         const category = await Database.category.findMany({
