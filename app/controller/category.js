@@ -56,7 +56,7 @@ export const CreateCategory = async (req, res) => {
         });
 
         if (!categoryDb_name.length === 0){
-            if (category_name === category_name) {
+            if (category_name == category_name) {
                 return res.status(409).json({ 
                     status: "error",
                     message: "Category already exist" 
