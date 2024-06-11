@@ -1,291 +1,289 @@
 import { Database } from "../config/database.js";
-import cloudinary from "../config/cloudinary.js";
+import uploadToCloudinary from "../config/cloudinary.js";
 
 export const GetProductbySearch = async (req, res) => {
-    const user_id = req.body;
-    const product_name = req.params.name
+  const user_id = req.body;
+  const product_name = req.params.name;
 
-    try {
-        const user = await Database.user.findMany({
-            where: {
-                user_id: user_id
-            }
-        });
+  try {
+    const user = await Database.user.findMany({
+      where: {
+        user_id: user_id,
+      },
+    });
 
-        if (user.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "User not found" 
-            });
-        };
-
-        const product = await Database.product.findMany({
-            where: {
-                product_name: product_name
-            }
-        });
-
-        if (product.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "Product not found" 
-            });
-        };
-
-        res.status(200).json({
-            status: "success",
-            message: "Success get product",
-            data: product
-        })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ 
-            status: "error",
-            message: "Internal server error" 
-        })
+    if (user.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
     }
-}
+
+    const product = await Database.product.findMany({
+      where: {
+        product_name: product_name,
+      },
+    });
+
+    if (product.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Success get product",
+      data: product,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
 
 export const GetProduct = async (req, res) => {
-    const { user_id } = req.body
+  const { user_id } = req.body;
 
-    try {
-        const user = await Database.user.findMany({
-            where: {
-                user_id: user_id
-            }
-        })
+  try {
+    const user = await Database.user.findMany({
+      where: {
+        user_id: user_id,
+      },
+    });
 
-        if (user.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "User not found" 
-            });
-        }
+    if (user.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
 
-        const product = await Database.product.findMany({
-            where: {
-                user_id: user_id
-            }
-        });
+    const product = await Database.product.findMany({
+      where: {
+        user_id: user_id,
+      },
+    });
 
-        if (product == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "No Product Exist" 
-            })
-        }
+    if (product == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No Product Exist",
+      });
+    }
 
-        res.status(200).json({
-            status: "success",
-            message: "Success Get Product",
-            data: product
-        
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ 
-            status: "error",
-            message: "Internal server error" 
-        });
-    };
+    res.status(200).json({
+      status: "success",
+      message: "Success Get Product",
+      data: product,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
 };
 
 export const CreateProduct = async (req, res) => {
-    const { user_id, product_name, price, stock, category_id } = req.body;
-    const image = req.file;
+  const { user_id, product_name, price, stock, category_id } = req.body;
 
-    try {
-        const user = await Database.user.findMany({
-            where: {
-                user_id: user_id
-            }
-        })
+  if (!req.file || !req.file.buffer) {
+    return res.status(400).json({
+      status: "error",
+      message: "Image file is required",
+    });
+  }
 
-        if (user.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "User not found" 
-            });
-        }
+  try {
+    const user = await Database.user.findMany({
+      where: { user_id: user_id },
+    });
 
-        const productDb_name = await Database.product.findMany({
-            where: {
-                product_name: product_name
-            }
-        });
+    if (user.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
 
-        const categoryDb = await Database.category.findMany({
-            where: {
-                category_id: parseInt(category_id)
-            }
-        });
+    const productDb_name = await Database.product.findMany({
+      where: { product_name: product_name },
+    });
 
-        if (categoryDb.length == 0){
-            return res.status(404).json({
-                status: "error",
-                message: "Category not found" 
-            });
-        }
+    const categoryDb = await Database.category.findMany({
+      where: { category_id: parseInt(category_id) },
+    });
 
-        if (!productDb_name.length == 0){
-            if (product_name === product_name) {
-                return res.status(409).json({ 
-                    status: "error",
-                    message: "Product already exist" 
-                });
-            };
-        };
+    if (categoryDb.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Category not found",
+      });
+    }
 
-        const imageUri = await cloudinary.uploader.upload(image)
+    if (productDb_name.length !== 0) {
+      return res.status(409).json({
+        status: "error",
+        message: "Product already exists",
+      });
+    }
 
-        await Database.product.create({
-            data: {
-                user_id: user_id,
-                product_name: product_name,
-                image: imageUri.url,
-                image_public_id: imageUri.public_id,
-                price: parseFloat(price),
-                stock: parseInt(stock),
-                category_id: parseInt(category_id)
-            }
-        });
+    // Upload image to Cloudinary
+    const imageUri = await uploadToCloudinary(req.file.buffer);
 
-        res.status(201).json({ 
-            status: "success",
-            message: "Product created successfully",
-            data: {
-                product_name: product_name,
-                image: imageUri.url,
-                image_public_id: imageUri.public_id,
-                price: price,
-                stock: stock,
-                category_id: category_id
-            } 
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ 
-            status: "error",
-            message: "Internal server error" 
-        });
-    };
+    await Database.product.create({
+      data: {
+        user_id: user_id,
+        product_name: product_name,
+        image: imageUri.url,
+        image_public_id: imageUri.public_id,
+        price: parseFloat(price),
+        stock: parseInt(stock),
+        category_id: parseInt(category_id),
+      },
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "Product created successfully",
+      data: {
+        product_name: product_name,
+        image: imageUri.url,
+        image_public_id: imageUri.public_id,
+        price: price,
+        stock: stock,
+        category_id: category_id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
 };
 
 export const UpdateProduct = async (req, res) => {
-    const { user_id, product_id } = req.body;
-    let updateData = {};
-    
-    if (req.body.product_name) {
-        updateData.product_name = req.body.product_name;
+  const { user_id, product_id } = req.body;
+  let updateData = {};
+
+  if (req.body.product_name) {
+    updateData.product_name = req.body.product_name;
+  }
+  if (req.file) {
+    updateData.image = req.file.path;
+  }
+  if (req.body.price) {
+    updateData.price = req.body.price;
+  }
+  if (req.body.stock) {
+    updateData.stock = req.body.stock;
+  }
+  if (req.body.category_id) {
+    updateData.category_id = req.body.category_id;
+  }
+
+  try {
+    const user = await Database.user.findMany({
+      where: {
+        user_id: user_id,
+      },
+    });
+
+    if (user.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
     }
-    if (req.file) {
-        updateData.image = req.file.path;
+
+    const productDb = await Database.product.findMany({
+      where: {
+        product_id: product_id,
+      },
+    });
+
+    if (productDb.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Product not found",
+      });
     }
-    if (req.body.price) {
-        updateData.price = req.body.price;
+
+    await Database.product.update({
+      where: {
+        product_id: product_id,
+      },
+      data: updateData,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Product updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
+export const DeleteProduct = async (req, res) => {
+  const { user_id, product_id } = req.body;
+
+  try {
+    const user = await Database.user.findMany({
+      where: {
+        user_id: user_id,
+      },
+    });
+
+    if (user.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
     }
-    if (req.body.stock) {
-        updateData.stock = req.body.stock;
+
+    const productDB = await Database.product.findMany({
+      where: {
+        product_id: parseInt(product_id),
+      },
+    });
+
+    if (productDB.length == 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No Product Exist",
+      });
     }
-    if (req.body.category_id) {
-        updateData.category_id = req.body.category_id;
-    }
 
-    try {
-        const user = await Database.user.findMany({
-            where: {
-                user_id: user_id
-            }
-        })
+    await cloudinary.uploader.destroy(productDB[0].image_public_id);
 
-        if (user.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "User not found" 
-            });
-        }
+    await Database.product.delete({
+      where: {
+        product_id: parseInt(product_id),
+      },
+    });
 
-        const productDb = await Database.product.findMany({
-            where: {
-                product_id: product_id
-            }
-        });
-
-        if (productDb.length == 0){
-            return res.status(404).json({ 
-                status: "error",
-                message: "Product not found" 
-            });
-        };
-
-        await Database.product.update({
-            where: {
-                product_id: product_id
-            },
-            data: updateData
-        });
-
-        res.status(200).json({ 
-            status: "success",
-            message: "Product updated successfully" 
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ 
-            status: "error",
-            message: "Internal server error" 
-        });
-    };
-}
-
-export const DeleteProduct = async(req, res) => {
-    const { user_id, product_id } = req.body;
-
-    try {
-        const user = await Database.user.findMany({
-            where: {
-                user_id: user_id
-            }
-        })
-
-        if (user.length == 0) {
-            return res.status(404).json({ 
-                status: "error",
-                message: "User not found" 
-            });
-        }
-
-        const productDB = await Database.product.findMany({
-            where: {
-                product_id: parseInt(product_id)
-            }
-        })
-
-        if (productDB.length == 0){
-            return res.status(404).json({ 
-                status: "error",
-                message: "No Product Exist" 
-            });
-        }
-
-        await cloudinary.uploader.destroy(productDB[0].image_public_id);
-
-        await Database.product.delete({
-            where: {
-                product_id: parseInt(product_id)
-            }
-        });
-
-        res.status(200).json({ 
-            status: "success",
-            message: "Product deleted successfully" 
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ 
-            status: "error",
-            message: "Internal server error" 
-        });
-    }
-}
+    res.status(200).json({
+      status: "success",
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};

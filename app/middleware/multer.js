@@ -1,11 +1,6 @@
-import multer from "multer";
+import multer from 'multer';
 
-const storage = multer.memoryStorage({
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 export const multerMiddleware = (req, res, next) => {
@@ -18,4 +13,3 @@ export const multerMiddleware = (req, res, next) => {
     next();
   });
 };
-
