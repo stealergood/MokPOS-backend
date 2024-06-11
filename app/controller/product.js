@@ -1,5 +1,16 @@
 import { Database } from "../config/database.js";
-import uploadToCloudinary from "../config/cloudinary.js";
+import cloudinary from "../config/cloudinary.js";
+import streamifier from "streamifier";
+
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const upload_stream = cloudinary.uploader.upload_stream((error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+    streamifier.createReadStream(buffer).pipe(upload_stream);
+  });
+};
 
 export const GetProductbySearch = async (req, res) => {
   const user_id = req.body;
@@ -134,7 +145,6 @@ export const CreateProduct = async (req, res) => {
       });
     }
 
-    // Upload image to Cloudinary
     const imageUri = await uploadToCloudinary(req.file.buffer);
 
     await Database.product.create({
@@ -162,7 +172,7 @@ export const CreateProduct = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
