@@ -2,10 +2,12 @@ import { Database } from "../config/database.js";
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
-const uploadToCloudinary = (buffer) => {
+const uploadToCloudinary = async (buffer) => {
   return new Promise((resolve, reject) => {
-    const upload_stream = cloudinary.uploader.upload_stream((error, result) => {
-      if (error) return reject(error);
+    const upload_stream = cloudinary.uploader.upload_stream((result, error) => {
+      if (error) {
+        reject(error);
+      }
       resolve(result);
     });
     streamifier.createReadStream(buffer).pipe(upload_stream);
@@ -112,10 +114,12 @@ export const CreateProduct = async (req, res) => {
   }
 
   try {
+    console.log("Creating product");
     const user = await Database.user.findMany({
       where: { user_id: user_id },
     });
 
+    console.log("Check user");
     if (user.length === 0) {
       return res.status(404).json({
         status: "error",
@@ -123,10 +127,12 @@ export const CreateProduct = async (req, res) => {
       });
     }
 
+    console.log("Check product name");
     const productDb_name = await Database.product.findMany({
       where: { product_name: product_name },
     });
 
+    console.log("Check category");
     const categoryDb = await Database.category.findMany({
       where: { category_id: parseInt(category_id) },
     });
@@ -171,8 +177,9 @@ export const CreateProduct = async (req, res) => {
         category_id: category_id,
       },
     });
+
   } catch (error) {
-    console.error(error);
+    console.log("Error creating product:", error);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
