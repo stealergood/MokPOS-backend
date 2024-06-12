@@ -112,6 +112,19 @@ export const UpdateCategory = async (req, res) => {
             });
         };
 
+        const categoryDb_name = await Database.category.findMany({
+            where: {
+                category_name: category_name,
+            }
+        });
+
+        if (categoryDb_name.length > 0) {
+            return res.status(409).json({ 
+                status: "error",
+                message: "Category already exists" 
+            });
+        }
+
         await Database.category.update({
             where: {
                 category_id: parseInt(category_id)
