@@ -60,7 +60,7 @@ export const GetProductbySearch = async (req, res) => {
 };
 
 export const GetProduct = async (req, res) => {
-  const { user_id } = req.body;
+  const { user_id } = req.query;
 
   try {
     const user = await Database.user.findMany({
