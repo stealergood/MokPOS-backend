@@ -114,12 +114,10 @@ export const CreateProduct = async (req, res) => {
   }
 
   try {
-    console.log("Creating product");
     const user = await Database.user.findMany({
       where: { user_id: user_id },
     });
 
-    console.log("Check user");
     if (user.length === 0) {
       return res.status(404).json({
         status: "error",
@@ -127,12 +125,10 @@ export const CreateProduct = async (req, res) => {
       });
     }
 
-    console.log("Check product name");
     const productDb_name = await Database.product.findMany({
       where: { product_name: product_name },
     });
 
-    console.log("Check category");
     const categoryDb = await Database.category.findMany({
       where: { category_id: parseInt(category_id) },
     });
@@ -153,7 +149,7 @@ export const CreateProduct = async (req, res) => {
 
     const imageUri = await uploadToCloudinary(req.file.buffer);
 
-    await Database.product.create({
+    const newProduct = await Database.product.create({
       data: {
         user_id: user_id,
         product_name: product_name,
@@ -164,18 +160,11 @@ export const CreateProduct = async (req, res) => {
         category_id: parseInt(category_id),
       },
     });
-
+    
     res.status(201).json({
       status: "success",
       message: "Product created successfully",
-      data: {
-        product_name: product_name,
-        image: imageUri.url,
-        image_public_id: imageUri.public_id,
-        price: price,
-        stock: stock,
-        category_id: category_id,
-      },
+      data: newProduct
     });
 
   } catch (error) {

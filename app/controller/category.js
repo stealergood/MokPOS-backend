@@ -62,7 +62,7 @@ export const CreateCategory = async (req, res) => {
             });
         }
 
-        await Database.category.create({
+        const newCategory = await Database.category.create({
             data: {
                 user_id: user_id,
                 category_name: category_name
@@ -71,7 +71,8 @@ export const CreateCategory = async (req, res) => {
 
         res.status(201).json({ 
             status: "success",
-            message: "Category created successfully"
+            message: "Category created successfully",
+            data: newCategory
         });
     } catch (error) {
         console.log(error);
