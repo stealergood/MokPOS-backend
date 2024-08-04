@@ -223,7 +223,7 @@ export const UpdateProduct = async (req, res) => {
       });
     }
 
-    await Database.product.update({
+    const updateProduct = await Database.product.update({
       where: {
         product_id: product_id,
       },
@@ -233,6 +233,7 @@ export const UpdateProduct = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Product updated successfully",
+      data: updateProduct,
     });
   } catch (error) {
     console.log(error);

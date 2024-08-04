@@ -126,7 +126,7 @@ export const UpdateCategory = async (req, res) => {
             });
         }
 
-        await Database.category.update({
+        const updateCategory = await Database.category.update({
             where: {
                 category_id: parseInt(category_id)
             },
@@ -137,7 +137,8 @@ export const UpdateCategory = async (req, res) => {
 
         res.status(200).json({ 
             status: "success",
-            message: "Category updated successfully" 
+            message: "Category updated successfully",
+            data: updateCategory
         });
     } catch (error) {
         console.log(error);
