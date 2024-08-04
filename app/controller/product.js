@@ -113,7 +113,7 @@ export const CreateProduct = async (req, res) => {
     });
   }
 
-  if (!image.uri) {
+  if (!image) {
     return res.status(400).json({
       status: "error",
       message: "Image URI is required",
@@ -154,7 +154,7 @@ export const CreateProduct = async (req, res) => {
       });
     }
 
-    const imageUri = await uploadToCloudinary(image.uri);
+    const imageUri = await uploadToCloudinary(image);
 
     const newProduct = await Database.product.create({
       data: {
