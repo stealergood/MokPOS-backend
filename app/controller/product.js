@@ -104,12 +104,19 @@ export const GetProduct = async (req, res) => {
 };
 
 export const CreateProduct = async (req, res) => {
-  const { user_id, product_name, price, stock, category_id } = req.body;
+  const { user_id, product_name, price, stock, category_id, image } = req.body;
 
-  if (!req.file || !req.file.buffer) {
+  if (!user_id || !product_name || !price || !stock || !category_id || !image) {
     return res.status(400).json({
       status: "error",
-      message: "Image file is required",
+      message: "All fields are required",
+    });
+  }
+
+  if (!image.uri) {
+    return res.status(400).json({
+      status: "error",
+      message: "Image URI is required",
     });
   }
 
@@ -147,7 +154,7 @@ export const CreateProduct = async (req, res) => {
       });
     }
 
-    const imageUri = await uploadToCloudinary(req.file.buffer);
+    const imageUri = await uploadToCloudinary(image.uri);
 
     const newProduct = await Database.product.create({
       data: {
