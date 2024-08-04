@@ -1,19 +1,6 @@
 import { Database } from "../config/database.js";
 import cloudinary from "../config/cloudinary.js";
-import streamifier from "streamifier";
-import axios from "axios";
-
-const uploadToCloudinary = async (buffer) => {
-  return new Promise((resolve, reject) => {
-    const upload_stream = cloudinary.uploader.upload_stream((result, error) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(result);
-    });
-    streamifier.createReadStream(buffer).pipe(upload_stream);
-  });
-};
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 
 export const GetProductbySearch = async (req, res) => {
   const user_id = req.body;
@@ -192,66 +179,114 @@ export const CreateProduct = async (req, res) => {
 };
 
 export const UpdateProduct = async (req, res) => {
-  const { user_id, product_id } = req.body;
-  let updateData = {};
+  const { user_id, product_id, product_name, price, stock, category_id, image } = req.body;
 
-  if (req.body.product_name) {
-    updateData.product_name = req.body.product_name;
-  }
-  if (req.file) {
-    updateData.image = req.file.path;
-  }
-  if (req.body.price) {
-    updateData.price = req.body.price;
-  }
-  if (req.body.stock) {
-    updateData.stock = req.body.stock;
-  }
-  if (req.body.category_id) {
-    updateData.category_id = req.body.category_id;
+  if (!user_id || !product_id) {
+    return res.status(400).json({
+      status: "error",
+      message: "User ID and Product ID are required",
+    });
   }
 
   try {
-    const user = await Database.user.findMany({
-      where: {
-        user_id: user_id,
-      },
+    const user = await Database.user.findUnique({
+      where: { user_id: user_id },
     });
 
-    if (user.length == 0) {
+    if (!user) {
       return res.status(404).json({
         status: "error",
         message: "User not found",
       });
     }
 
-    const productDb = await Database.product.findMany({
-      where: {
-        product_id: product_id,
-      },
+    const existingProduct = await Database.product.findUnique({
+      where: { product_id: parseInt(product_id) },
     });
 
-    if (productDb.length == 0) {
+    if (!existingProduct) {
       return res.status(404).json({
         status: "error",
         message: "Product not found",
       });
     }
 
-    const updateProduct = await Database.product.update({
-      where: {
-        product_id: product_id,
-      },
+    let updateData = {};
+
+    if (product_name) {
+      const productWithSameName = await Database.product.findFirst({
+        where: { 
+          product_name: product_name,
+          NOT: { product_id: parseInt(product_id) }
+        },
+      });
+
+      if (productWithSameName) {
+        return res.status(409).json({
+          status: "error",
+          message: "Product name already exists",
+        });
+      }
+
+      updateData.product_name = product_name;
+    }
+
+    if (price) {
+      updateData.price = parseFloat(price);
+    }
+
+    if (stock) {
+      updateData.stock = parseInt(stock);
+    }
+
+    if (category_id) {
+      const categoryDb = await Database.category.findUnique({
+        where: { category_id: parseInt(category_id) },
+      });
+
+      if (!categoryDb) {
+        return res.status(404).json({
+          status: "error",
+          message: "Category not found",
+        });
+      }
+
+      updateData.category_id = parseInt(category_id);
+    }
+
+    if (image) {
+      let buffer;
+      if (image.startsWith('data:image')) {
+        const base64Data = image.split(';base64,').pop();
+        buffer = Buffer.from(base64Data, 'base64');
+      } else {
+        throw new Error('Unsupported image format. Please send a base64 encoded image.');
+      }
+
+      const imageUri = await uploadToCloudinary(buffer);
+
+      // Delete old image from Cloudinary if it exists
+      if (existingProduct.image_public_id) {
+        await deleteFromCloudinary(existingProduct.image_public_id);
+      }
+
+      updateData.image = imageUri.url;
+      updateData.image_public_id = imageUri.public_id;
+    }
+
+    const updatedProduct = await Database.product.update({
+      where: { product_id: parseInt(product_id) },
       data: updateData,
     });
-
+    
     res.status(200).json({
       status: "success",
       message: "Product updated successfully",
-      data: updateProduct,
+      data: updatedProduct
     });
+
   } catch (error) {
-    console.log(error);
+    console.log("Error updating product:", error);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
