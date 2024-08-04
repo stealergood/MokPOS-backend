@@ -1,8 +1,9 @@
 import { Database } from "../config/database.js";
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
+import axios from "axios";
 
-const uploadToCloudinary = async (buffer) => {
+const uploadToCloudinary = async (uri) => {
   return new Promise((resolve, reject) => {
     const upload_stream = cloudinary.uploader.upload_stream((result, error) => {
       if (error) {
@@ -153,8 +154,9 @@ export const CreateProduct = async (req, res) => {
         message: "Product already exists",
       });
     }
-
-    const imageUri = await uploadToCloudinary(image);
+    const response = await axios.get(image, { responseType: 'arraybuffer' });
+    const buffer = Buffer.from(response.data, 'binary');
+    const imageUri = await uploadToCloudinary(buffer);
 
     const newProduct = await Database.product.create({
       data: {
