@@ -154,8 +154,14 @@ export const CreateProduct = async (req, res) => {
         message: "Product already exists",
       });
     }
-    const response = await axios.get(image, { responseType: 'arraybuffer' });
-    const buffer = Buffer.from(response.data, 'binary');
+    let buffer;
+    if (image.startsWith('data:image')) {
+      // Handle base64 encoded image
+      const base64Data = image.split(';base64,').pop();
+      buffer = Buffer.from(base64Data, 'base64');
+    } else {
+      throw new Error('Unsupported image format. Please send a base64 encoded image.');
+    }
     const imageUri = await uploadToCloudinary(buffer);
 
     const newProduct = await Database.product.create({
