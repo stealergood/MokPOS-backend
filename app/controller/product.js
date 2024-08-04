@@ -3,7 +3,7 @@ import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 import axios from "axios";
 
-const uploadToCloudinary = async (uri) => {
+const uploadToCloudinary = async (buffer) => {
   return new Promise((resolve, reject) => {
     const upload_stream = cloudinary.uploader.upload_stream((result, error) => {
       if (error) {
