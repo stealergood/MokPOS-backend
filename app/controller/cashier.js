@@ -102,9 +102,9 @@ export const PlaceOrder = async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     });
 
-    if (placement_order !== "dine-in" && placement_order !== "takeaway") {
+    if (placement_order !== "dine_in" && placement_order !== "takeaway") {
         return res.status(400).json({
-            message: "Invalid placement order, must dine-in or takeaway"
+            message: "Invalid placement order, must dine_in or takeaway"
         });
     }
 
